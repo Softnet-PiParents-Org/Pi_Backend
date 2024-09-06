@@ -57,7 +57,7 @@ class Grade(models.Model):
 class Student(models.Model):
     full_name = models.CharField(max_length=255)
     school_ID = models.PositiveIntegerField()
-    profile_pic = models.ImageField(upload_to='/')
+    # profile_pic = models.ImageField(upload_to='/')
     rank = models.PositiveIntegerField()
     average = models.FloatField()
     parent = models.ForeignKey(Parent, on_delete=models.CASCADE)
@@ -135,7 +135,7 @@ class PermissionRequest(models.Model):
         unique_together = ('student', 'date') # one at a time
         
 class MissedEvent(models.Model):
-    picture = models.ImageField(upload_to='/')
+    #picture = models.ImageField(upload_to='/')
     discription = models.TextField()
 
 class Fee(models.Model):
