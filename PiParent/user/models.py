@@ -44,10 +44,8 @@ class Parent(AbstractUser):
     )
     username = None
     email = None
-
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = []
-
     objects = ParentManager()
 
     def __str__(self):
@@ -55,27 +53,31 @@ class Parent(AbstractUser):
     
     
 class School(models.Model):
-    pass
+    logo = models.ImageField(upload_to='user/images', null= True)
+    school_name=models.CharField(max_length=100, blank=True)
 
 class Teacher(models.Model):
     name = models.CharField(max_length=255)
-    
+
+    def __str__(self) -> str:
+        return self.name
+
 class Grade(models.Model):
-    grade = models.CharField(max_length=4)
-    
+    grade = models.CharField(max_length=4, null=True, blank=True)
+
+    def __str__(self) -> str:
+        return self.grade
+
+
 class Student(models.Model):
     full_name = models.CharField(max_length=255)
-    school_ID = models.PositiveIntegerField()
-    # profile_pic = models.ImageField(upload_to='/')
+    school_ID = models.PositiveIntegerField(unique=True)  
+    profile_pic = models.ImageField(upload_to='user/images', null= True)
     rank = models.PositiveIntegerField()
     average = models.FloatField()
-    parent = models.ForeignKey(Parent, on_delete=models.CASCADE)
-    grade = models.ForeignKey(Grade, on_delete=models.CASCADE)
-    
-    
-    def save(self):
-        pass
-    
+    parent = models.ForeignKey('Parent', on_delete=models.CASCADE) 
+    grade = models.ForeignKey('Grade', on_delete=models.CASCADE)  
+
 
 class Subject(models.Model):
     name = models.CharField(max_length=255)
@@ -100,6 +102,7 @@ class Subject(models.Model):
     final_exam = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
 
     semester = models.IntegerField()
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='subjects', null=True)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     score = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(100.0)], blank=True, null=True)
 
@@ -144,8 +147,8 @@ class PermissionRequest(models.Model):
         unique_together = ('student', 'date') # one at a time
         
 class MissedEvent(models.Model):
-    #picture = models.ImageField(upload_to='/')
-    discription = models.TextField()
+    picture = models.ImageField(upload_to='users/images', null= True)
+    description = models.TextField()
 
 class Fee(models.Model):
     STATUS_PAID = 'PAID'
