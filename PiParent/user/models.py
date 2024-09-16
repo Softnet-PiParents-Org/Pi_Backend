@@ -1,8 +1,8 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MinValueValidator, MaxValueValidator
-
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
+from phonenumber_field.modelfields import PhoneNumberField
 
 class ParentManager(BaseUserManager):
     use_in_migrations = True
@@ -32,7 +32,16 @@ class ParentManager(BaseUserManager):
         return self._create_user(phone, password, **extra_fields)
 
 class Parent(AbstractUser):
-    phone = models.CharField(max_length=60, unique=True)
+    phone = models.CharField(
+        verbose_name='Phone Number',
+        max_length=13, unique=True, null=False, blank=False,
+        validators=[
+            RegexValidator(
+                regex=r'^2519\d{8}$|^09\d{8}$',
+                message='Please enter a valid Ethiopian phone number starting with 251 or 09 and followed by 8 digits.'
+            )
+        ]
+    )
     username = None
     email = None
 
