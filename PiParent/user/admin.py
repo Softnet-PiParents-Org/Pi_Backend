@@ -1,6 +1,17 @@
 from django.contrib import admin
-from .models import Parent
+from .models import Teacher, Subject, Student  # Import your models
 
-@admin.register(Parent)
-class ParentAdmin(admin.ModelAdmin):
-    pass
+# Register the Teacher model
+@admin.register(Teacher)
+class TeacherAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name') 
+
+
+@admin.register(Subject)
+class SubjectAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'teacher')  
+
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'full_name', 'school_ID', 'average')  
