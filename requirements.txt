@@ -5,6 +5,7 @@ charset-normalizer==3.3.2
 cryptography==43.0.0
 defusedxml==0.8.0rc2
 Django==5.1
+django-cors-headers==4.4.0
 django-debug-toolbar==4.4.6
 django-filter==24.3
 django-phonenumber-field==8.0.0
