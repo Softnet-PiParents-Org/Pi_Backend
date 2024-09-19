@@ -1,13 +1,25 @@
 from .serializers import *
 from .models import *
+import django_filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
+class StudentFilter(django_filters.FilterSet):
+    full_name = django_filters.CharFilter(lookup_expr='icontains')
+    grade = django_filters.CharFilter(field_name='grade__grade')
+    parent = django_filters.CharFilter(field_name='parent__phone')
+
+    class Meta:
+        model = Student
+        fields = ['full_name', 'school_ID', 'grade', 'parent']
 
 class StudentViewSet(ModelViewSet):
-       queryset=Student.objects.all()
-       serializer_class=StudentSerializer
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = StudentFilter
 
 class SubjectViewSet(ModelViewSet):
        queryset=Subject.objects.all()
