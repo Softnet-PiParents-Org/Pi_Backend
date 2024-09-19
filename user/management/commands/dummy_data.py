@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from myapp.models import Parent, Student, Grade, Subject, Teacher, Attendance, PermissionRequest, Fee, Notification, MissedEvent, CourseRecommendation
+from user.models import Parent, Student, Grade, Subject, Teacher, Attendance, PermissionRequest, Fee, Notification, MissedEvent, CourseRecommendation
 from django.utils import timezone
 import random
 
