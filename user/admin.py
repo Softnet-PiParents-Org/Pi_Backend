@@ -1,81 +1,86 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from .models import (
-    Parent, Student, Grade, Subject, Teacher, Attendance, 
-    PermissionRequest, Fee, Notification, MissedEvent, 
-    CourseRecommendation, School
-)
+from .models import Parent, Student, Subject, Result, CourseRecommendation, Absent, PermissionRequest, Teacher, ChatMessage, Event, Fee, Notification
 
 @admin.register(Parent)
-class ParentAdmin(UserAdmin):
-    list_display = ('phone', 'is_staff', 'is_superuser')
-    search_fields = ('phone',)
-    ordering = ('phone',)
+class ParentAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'phone')
+    search_fields = ('full_name', 'phone')
+    ordering = ('full_name',)
+    list_filter = ('phone',)
     fieldsets = (
-        (None, {'fields': ('phone', 'password')}),
-        ('Permissions', {'fields': ('is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Important dates', {'fields': ('last_login', 'date_joined')}),
-    )
-    add_fieldsets = (
         (None, {
-            'classes': ('wide',),
-            'fields': ('phone', 'password1', 'password2', 'is_staff', 'is_superuser'),
+            'fields': ('full_name', 'phone')
         }),
     )
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'school_ID', 'rank', 'average', 'parent', 'grade')
+    list_display = ('full_name', 'school_ID', 'rank', 'average', 'parent')
     search_fields = ('full_name', 'school_ID')
-    list_filter = ('grade',)
-
-@admin.register(Grade)
-class GradeAdmin(admin.ModelAdmin):
-    list_display = ('grade',)
-    search_fields = ('grade',)
+    ordering = ('rank',)
+    list_filter = ('grade', 'parent')
+    fieldsets = (
+        (None, {
+            'fields': ('full_name', 'school_ID', 'profile_pic', 'rank', 'total', 'average', 'parent', 'grade')
+        }),
+    )
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'student', 'teacher', 'score')
-    search_fields = ('name', 'student__full_name', 'teacher__name')
-    list_filter = ('teacher', 'status')
-
-@admin.register(Teacher)
-class TeacherAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
+    ordering = ('name',)
 
-@admin.register(Attendance)
-class AttendanceAdmin(admin.ModelAdmin):
-    list_display = ('student', 'status', 'date')
-    list_filter = ('status', 'date')
+@admin.register(Result)
+class ResultAdmin(admin.ModelAdmin):
+    list_display = ('student', 'subject', 'test_type', 'score')
+    search_fields = ('student__full_name', 'subject__name')
+    list_filter = ('test_type',)
+    ordering = ('student',)
+
+@admin.register(CourseRecommendation)
+class CourseRecommendationAdmin(admin.ModelAdmin):
+    list_display = ('course_description', 'subject')
+    search_fields = ('course_description', 'subject__name')
+    ordering = ('subject',)
+
+@admin.register(Absent)
+class AbsentAdmin(admin.ModelAdmin):
+    list_display = ('student', 'date')
+    search_fields = ('student__full_name',)
+    ordering = ('date',)
 
 @admin.register(PermissionRequest)
 class PermissionRequestAdmin(admin.ModelAdmin):
-    list_display = ('parent', 'student', 'date', 'reason')
-    list_filter = ('date',)
+    list_display = ('student', 'date')
+    search_fields = ('student__full_name',)
+    ordering = ('date',)
+
+@admin.register(Teacher)
+class TeacherAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'subject')
+    search_fields = ('full_name', 'subject__name')
+    ordering = ('full_name',)
+
+@admin.register(ChatMessage)
+class ChatMessageAdmin(admin.ModelAdmin):
+    list_display = ('get_sender', 'get_recipient', 'message', 'timestamp')
+    search_fields = ('message',)
+    ordering = ('timestamp',)
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('description',)
+    search_fields = ('description',)
 
 @admin.register(Fee)
 class FeeAdmin(admin.ModelAdmin):
     list_display = ('status', 'date')
-    list_filter = ('status', 'date')
+    list_filter = ('status',)
+    ordering = ('date',)
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
-    list_display = ('message', 'date')
-    list_filter = ('date',)
-
-@admin.register(MissedEvent)
-class MissedEventAdmin(admin.ModelAdmin):
-    list_display = ('description',)
-    search_fields = ('description',)
-
-@admin.register(CourseRecommendation)
-class CourseRecommendationAdmin(admin.ModelAdmin):
-    list_display = ('course_description', 'release_date', 'duration')
-    list_filter = ('release_date',)
-
-@admin.register(School)
-class SchoolAdmin(admin.ModelAdmin):
-    list_display = ('school_name',)
-    search_fields = ('school_name',)
+    list_display = ('message', 'parent', 'date')
+    search_fields = ('message',)
+    ordering = ('date',)
