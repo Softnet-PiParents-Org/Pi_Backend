@@ -35,12 +35,12 @@ def calculate_student_rank():
     table = defaultdict(list)
     all_students = Student.objects.all()
     for student in all_students:
-        heapq.heappush(table[student.grade], [student.total, student])
+        heapq.heappush(table[-student.grade], [student.total, student])
     for grade in table:
         rank = 1
         t = len(table[grade])
         while table[grade]:
-            total, student = heapq.heappop(table[grade])
+            _, student = heapq.heappop(table[grade])
             student.count = t
             student.rank = rank
             student.save()
