@@ -1,55 +1,116 @@
-from .serializers import *
-from .models import *
-import django_filters
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from django_filters import rest_framework as filters
+from .models import Parent, Student, Result, Absent, PermissionRequest, Teacher, ChatMessage, Fee, Notification, Event
+from .serializers import (
+    ParentSerializer,
+    StudentSerializer,
+    ResultSerializer,
+    AbsentSerializer,
+    PermissionRequestSerializer,
+    TeacherSerializer,
+    ChatMessageSerializer,
+    FeeSerializer,
+    NotificationSerializer,
+    EventSerializer,
+)
 
-class StudentFilter(django_filters.FilterSet):
-    full_name = django_filters.CharFilter(lookup_expr='icontains')
-    grade = django_filters.CharFilter(field_name='grade__grade')
-    parent = django_filters.CharFilter(field_name='parent__phone')
-
+# Filters
+class StudentFilter(filters.FilterSet):
     class Meta:
         model = Student
-        fields = ['full_name', 'school_ID', 'grade', 'parent']
+        fields = ['parent']
 
-class StudentViewSet(ModelViewSet):
+class ResultFilter(filters.FilterSet):
+    class Meta:
+        model = Result
+        fields = ['student']
+
+class AbsentFilter(filters.FilterSet):
+    class Meta:
+        model = Absent
+        fields = ['student']
+
+class PermissionRequestFilter(filters.FilterSet):
+    class Meta:
+        model = PermissionRequest
+        fields = ['student']
+
+class ChatMessageFilter(filters.FilterSet):
+    class Meta:
+        model = ChatMessage
+        fields = ['sender_type', 'sender_parent', 'recipient_teacher']
+
+class EventFilter(filters.FilterSet):
+    class Meta:
+        model = Event
+        fields = ['description']
+
+# ViewSets
+class ParentViewSet(viewsets.ModelViewSet):
+    queryset = Parent.objects.all()
+    serializer_class = ParentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(phone=self.request.user.phone)
+
+class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
-    filter_backends = [DjangoFilterBackend]
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = StudentFilter
 
-class SubjectViewSet(ModelViewSet):
-       queryset=Subject.objects.all()
-       serializer_class = SubjectSerializer
+    def get_queryset(self):
+        parent = self.request.user.parent
+        return self.queryset.filter(parent=parent)
 
-class TeacherViewSet(ModelViewSet):
-       queryset = Teacher.objects.all()
-       serializer_class = TeacherSerializer
+class ResultViewSet(viewsets.ModelViewSet):
+    queryset = Result.objects.all()
+    serializer_class = ResultSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = ResultFilter
 
-class CourseRecommendationViewSet(viewsets.ModelViewSet):
-    queryset = CourseRecommendation.objects.all()
-    serializer_class = CourseRecommendationSerializer
-    permission_classes = [permissions.IsAdminUser] 
+class AbsentViewSet(viewsets.ModelViewSet):
+    queryset = Absent.objects.all()
+    serializer_class = AbsentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = AbsentFilter
 
-class ParentCourseRecommendationViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = CourseRecommendation.objects.all()
-    serializer_class = CourseRecommendationSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Allow authenticated users (parents)
+class PermissionRequestViewSet(viewsets.ModelViewSet):
+    queryset = PermissionRequest.objects.all()
+    serializer_class = PermissionRequestSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = PermissionRequestFilter
 
-class  AttendanceViewSet(ModelViewSet):
-     queryset = Attendance.objects.all()
-     serializer_class = AttendanceSerializer
-     permission_classes = [permissions.IsAuthenticated]
+class TeacherViewSet(viewsets.ModelViewSet):
+    queryset = Teacher.objects.all()
+    serializer_class = TeacherSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-class MissedEventViewSet(viewsets.ModelViewSet):
-    queryset = MissedEvent.objects.all()
-    serializer_class = MissedEventSerializer
-    permission_classes = [permissions.IsAdminUser]
+class ChatMessageViewSet(viewsets.ModelViewSet):
+    queryset = ChatMessage.objects.all()
+    serializer_class = ChatMessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = ChatMessageFilter
 
-    def perform_create(self, serializer):
-        # Logic for sending notifications or handling family lists and send notifications...
-        instance = serializer.save()
-        self.notify_families(instance) 
+class FeeViewSet(viewsets.ModelViewSet):
+    queryset = Fee.objects.all()
+    serializer_class = FeeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class EventViewSet(viewsets.ModelViewSet):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = EventFilter
