@@ -31,6 +31,7 @@ class ParentManager(BaseUserManager):
 
         return self._create_user(phone, password, **extra_fields)
 
+
 class Parent(AbstractUser):
     full_name = models.CharField(max_length=255)
     phone = models.CharField(
@@ -52,6 +53,7 @@ class Parent(AbstractUser):
     def __str__(self):
         return self.phone
 
+
 class Student(models.Model):
     full_name = models.CharField(max_length=255)
     school_ID = models.PositiveIntegerField(unique=True)
@@ -68,7 +70,6 @@ class Student(models.Model):
 
 class Subject(models.Model):
     name = models.CharField(max_length=255)
-    total = models.FloatField(default=0.0, blank=True)
 
     def __str__(self):
         return self.name
@@ -105,38 +106,73 @@ class Result(models.Model):
 class CourseRecommendation(models.Model):
     poster = models.ImageField(upload_to='user/course_recommendation')
     course_description=models.TextField()
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     link = models.URLField()
 
     def __str__(self):
         return self.course_description[:20]
     
     
-class Attendance(models.Model):
-    STATUS_PRESENT = 'Pr'
-    STATUS_ABSENT = 'Ab'
-    STATUS_PERMISSION = 'PE'
-    
-    STATUS_CHOICES = [
-        (STATUS_PRESENT,'Present'),
-        (STATUS_ABSENT,'Absent'),
-        (STATUS_PERMISSION,'Persmission')
-    ]
-    status = models.CharField(max_length=2, choices=STATUS_CHOICES,default= STATUS_PRESENT)
-    date = models.DateTimeField(auto_now_add = True)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    
-class PermissionRequest(models.Model):
-    parent = models.ForeignKey(Parent, on_delete=models.CASCADE)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+class Absent(models.Model):
     date = models.DateField()
-    reason = models.TextField(blank = True,null=True)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.student.full_name
     
-    class Meta:
-        unique_together = ('student', 'date') # one at a time
-        
-class MissedEvent(models.Model):
+
+class PermissionRequest(models.Model):
+    date = models.DateField()
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.student.full_name
+
+
+class Teacher(models.Model):
+    full_name = models.CharField(max_length=255)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.full_name} - {self.subject}'
+
+
+class ChatMessage(models.Model):
+    SENDER_TYPE_CHOICES = [
+        ('parent', 'Parent'),
+        ('teacher', 'Teacher'),
+    ]
+
+    sender_type = models.CharField(max_length=10, choices=SENDER_TYPE_CHOICES)
+    sender_parent = models.ForeignKey(Parent, on_delete=models.CASCADE, null=True, blank=True)
+    sender_teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, null=True, blank=True)
+    
+    recipient_parent = models.ForeignKey(Parent, on_delete=models.CASCADE, related_name='received_messages', null=True, blank=True)
+    recipient_teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='received_messages', null=True, blank=True)
+    
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Message from {self.get_sender()} to {self.get_recipient()} at {self.timestamp}'
+
+    def get_sender(self):
+        if self.sender_type == 'parent':
+            return self.sender_parent.full_name
+        else:
+            return self.sender_teacher.full_name
+
+    def get_recipient(self):
+        if self.recipient_parent:
+            return self.recipient_parent.full_name
+        else:
+            return self.recipient_teacher.full_name
+
+
+class Event(models.Model):
     picture = models.ImageField(upload_to='users/images', null= True)
     description = models.TextField()
+
 
 class Fee(models.Model):
     STATUS_PAID = 'PAID'
@@ -148,6 +184,9 @@ class Fee(models.Model):
     status = models.CharField(max_length=7,choices=STATUS_CHOICE)
     date = models.DateField()
     
+
 class Notification(models.Model):
     message = models.TextField()
-    date = models.DateField()
+    parent = models.ForeignKey(Parent, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+
