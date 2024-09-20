@@ -47,7 +47,7 @@ class Parent(AbstractUser):
     username = None
     email = None
     USERNAME_FIELD = 'phone'
-    REQUIRED_FIELDS = [full_name]
+    REQUIRED_FIELDS = []
     objects = ParentManager()
 
     def __str__(self):
