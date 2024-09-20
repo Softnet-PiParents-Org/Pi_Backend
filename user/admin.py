@@ -1,17 +1,30 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from .models import Parent, Student, Subject, Result, CourseRecommendation, Absent, PermissionRequest, Teacher, ChatMessage, Event, Fee, Notification
 
 @admin.register(Parent)
-class ParentAdmin(admin.ModelAdmin):
+class ParentAdmin(UserAdmin):
     list_display = ('full_name', 'phone')
     search_fields = ('full_name', 'phone')
     ordering = ('full_name',)
     list_filter = ('phone',)
+
     fieldsets = (
         (None, {
-            'fields': ('full_name', 'phone')
+            'fields': ('full_name', 'phone', 'password'),
         }),
     )
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if obj:
+            form.base_fields['password'].widget.attrs['readonly'] = True
+        return form
+
+    def save_model(self, request, obj, form, change):
+        if 'password' in form.changed_data:
+            obj.set_password(form.cleaned_data['password'])
+        super().save_model(request, obj, form, change)
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
