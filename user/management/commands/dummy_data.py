@@ -1,92 +1,57 @@
-from django.core.management.base import BaseCommand
-from user.models import Parent, Student, Grade, Subject, Teacher, Attendance, PermissionRequest, Fee, Notification, MissedEvent, CourseRecommendation
-from django.utils import timezone
 import random
+from datetime import timedelta, date
+from django.core.management.base import BaseCommand
+from user.models import Parent, Student, Subject, Result, Absent, PermissionRequest, Teacher
 
 class Command(BaseCommand):
-    help = "Populate the database with temp data"
+    help = 'Populate the database with initial data'
 
-    def handle(self, *args, **kwargs):
+    def handle(self, *args, **options):
         parents = []
         for i in range(10):
-            parent = Parent.objects.create_user(
-                phone=f'09{random.randint(100000000, 999999999)}', 
+            parent = Parent.objects.create(
+                full_name=f'Parent {i + 1}',
+                phone=f'2519{random.randint(10000000, 99999999)}',
                 password='password123'
             )
             parents.append(parent)
 
-        grades = []
-        for i in range(1, 13):
-            grade = Grade.objects.create(grade=f'{i}')
-            grades.append(grade)
+        subjects = ['Mathematics', 'Science', 'History', 'Geography', 'English', 'Physics', 'Chemistry']
+        subject_objects = [Subject.objects.create(name=subject) for subject in subjects]
 
-        students = []
-        for i in range(10):
-            student = Student.objects.create(
-                full_name=f'Student {i + 1}', 
-                school_ID=i + 1000,
-                rank=random.randint(1, 10),
-                average=round(random.uniform(60.0, 90.0), 2),
-                parent=parents[i % 10],
-                grade=grades[random.randint(0, len(grades) - 1)]
-            )
-            students.append(student)
+        for parent in parents:
+            for grade in range(9, 13):
+                for _ in range(random.randint(1, 4)):
+                    student = Student.objects.create(
+                        full_name=f'Student {parent.full_name}',
+                        school_ID=random.randint(1000, 9999),
+                        rank=random.randint(1, 100),
+                        total=100.0,
+                        average=100.0,
+                        parent=parent,
+                        grade=grade
+                    )
+                    for subject in subject_objects:
+                        for test_type in ['quiz', 'assignment', 'midterm', 'final']:
+                            Result.objects.create(
+                                student=student,
+                                subject=subject,
+                                test_type=test_type,
+                                score=100.0
+                            )
 
-        teachers = []
-        for i in range(5):
-            teacher = Teacher.objects.create(name=f'Teacher {i + 1}')
-            teachers.append(teacher)
+                    for _ in range(random.randint(0, 5)):
+                        absent_date = date.today() - timedelta(days=random.randint(1, 30))
+                        Absent.objects.create(student=student, date=absent_date)
 
-        subjects = ['Math', 'Science', 'English', 'History', 'Art']
-        for student in students:
-            for subject in subjects:
-                Subject.objects.create(
-                    name=subject,
-                    quiz=random.uniform(10, 15),
-                    test1=random.uniform(60, 100),
-                    mid_exam=random.uniform(60, 100),
-                    assignment=random.uniform(60, 100),
-                    final_exam=random.uniform(60, 100),
-                    semester=random.randint(1, 2),
-                    teacher=teachers[random.randint(0, len(teachers) - 1)],
-                    student=student
-                )
-
-        for student in students:
-            Attendance.objects.create(
-                status=random.choice([Attendance.STATUS_PRESENT, Attendance.STATUS_ABSENT, Attendance.STATUS_PERMISSION]),
-                student=student
-            )
-
-        for i in range(10):
-            PermissionRequest.objects.create(
-                parent=parents[i % 10],
-                student=students[i],
-                date=timezone.now().date(),
-                reason=f'Reason {i + 1}'
-            )
-
-        for i in range(10):
-            Fee.objects.create(
-                status=random.choice([Fee.STATUS_PAID, Fee.STATUS_UNPAID]),
-                date=timezone.now().date()
-            )
-
-        for i in range(10):
-            Notification.objects.create(
-                message=f'Notification {i + 1}',
-                date=timezone.now().date()
-            )
-
-        for i in range(10):
-            MissedEvent.objects.create(
-                description=f'Missed Event {i + 1}'
-            )
+                    for _ in range(random.randint(0, 3)):
+                        permission_date = date.today() - timedelta(days=random.randint(1, 30))
+                        PermissionRequest.objects.create(student=student, date=permission_date)
 
         for i in range(5):
-            CourseRecommendation.objects.create(
-                course_description=f'Course {i + 1}',
-                duration=random.randint(10, 30)
+            Teacher.objects.create(
+                full_name=f'Teacher {i + 1}',
+                subject=random.choice(subject_objects)
             )
 
-        self.stdout.write(self.style.SUCCESS('Successfully populated the database with temp data!'))
+        self.stdout.write(self.style.SUCCESS('Database populated successfully.'))
