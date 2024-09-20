@@ -38,8 +38,10 @@ def calculate_student_rank():
         heapq.heappush(table[student.grade], [student.total, student])
     for grade in table:
         rank = 1
+        t = len(table[grade])
         while table[grade]:
             total, student = heapq.heappop(table[grade])
+            student.count = t
             student.rank = rank
             student.save()
             rank += 1

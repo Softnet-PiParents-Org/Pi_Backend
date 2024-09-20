@@ -61,6 +61,7 @@ class Student(models.Model):
     rank = models.PositiveIntegerField()
     total = models.FloatField(default=0.0, blank=True)
     average = models.FloatField(default=0.0, blank=True)
+    count = models.PositiveIntegerField(default=0, blank=True)
     parent = models.ForeignKey('Parent', on_delete=models.CASCADE)
     grade = models.IntegerField(validators=[MinValueValidator(9), MaxValueValidator(12)]) 
 
