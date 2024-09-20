@@ -32,6 +32,7 @@ class ParentManager(BaseUserManager):
         return self._create_user(phone, password, **extra_fields)
 
 class Parent(AbstractUser):
+    full_name = models.CharField(max_length=255)
     phone = models.CharField(
         verbose_name='Phone Number',
         max_length=13, unique=True, null=False, blank=False,
@@ -50,51 +51,23 @@ class Parent(AbstractUser):
 
     def __str__(self):
         return self.phone
-    
-    
-class School(models.Model):
-    logo = models.ImageField(upload_to='user/images', null= True)
-    school_name=models.CharField(max_length=100, blank=True)
-
-class Teacher(models.Model):
-    name = models.CharField(max_length=255)
-
-    def __str__(self) -> str:
-        return self.name
-
-class Grade(models.Model):
-    grade = models.CharField(max_length=4, null=True, blank=True)
-
-    def __str__(self) -> str:
-        return self.grade
-
 
 class Student(models.Model):
     full_name = models.CharField(max_length=255)
     school_ID = models.PositiveIntegerField(unique=True)  
-    profile_pic = models.ImageField(upload_to='user/images', null= True)
+    profile_pic = models.ImageField(upload_to='user/images', blank=True)
     rank = models.PositiveIntegerField()
     average = models.FloatField()
     parent = models.ForeignKey('Parent', on_delete=models.CASCADE) 
-    grade = models.ForeignKey('Grade', on_delete=models.CASCADE)  
+    grade = models.IntegerField(validators=[MinValueValidator(9), MaxValueValidator(12)])
+
+    def __str__(self):
+        return self.full_name
 
 
 class Subject(models.Model):
-    name = models.CharField(max_length=255)
-    
-    STATUS_INCOMPLETE = 'IC'
-    STATUS_PASS = 'P'
-    STATUS_FAIL = 'F'
+    name = models.CharField(max_length=255)    
 
-    STATUS_CHOICES = [
-        (STATUS_INCOMPLETE, 'Incomplete'),
-        (STATUS_PASS, 'Pass'),
-        (STATUS_FAIL, 'Fail'), 
-    ]
-
-    status = models.CharField(
-        max_length=2, choices=STATUS_CHOICES)
-    
     quiz = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(15.0)])
     test1 = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
     mid_exam = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
