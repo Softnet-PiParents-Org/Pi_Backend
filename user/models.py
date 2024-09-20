@@ -54,25 +54,25 @@ class Parent(AbstractUser):
 
 class Student(models.Model):
     full_name = models.CharField(max_length=255)
-    school_ID = models.PositiveIntegerField(unique=True)  
+    school_ID = models.PositiveIntegerField(unique=True)
     profile_pic = models.ImageField(upload_to='user/images', blank=True)
     rank = models.PositiveIntegerField()
-    average = models.FloatField()
-    parent = models.ForeignKey('Parent', on_delete=models.CASCADE) 
+    total = models.FloatField(default=0.0, blank=True)
+    average = models.FloatField(default=0.0, blank=True)
+    parent = models.ForeignKey('Parent', on_delete=models.CASCADE)
     grade = models.IntegerField(validators=[MinValueValidator(9), MaxValueValidator(12)]) 
-    total = models.FloatField(blank=True)
-    average = models.FloatField(blank=True) 
 
     def __str__(self):
         return self.full_name
 
 
 class Subject(models.Model):
-    name = models.CharField(max_length=255)  
-    total = models.FloatField(blank=True) 
+    name = models.CharField(max_length=255)
+    total = models.FloatField(default=0.0, blank=True)
 
     def __str__(self):
         return self.name
+
 
 class Result(models.Model):
     TEST_CHOICES = [
@@ -84,26 +84,23 @@ class Result(models.Model):
     
     test_type = models.CharField(max_length=10, choices=TEST_CHOICES)
     score = models.FloatField()
-    student = models.ForeignKey('Student', on_delete=models.CASCADE)
-    subject = models.ForeignKey('Subject', on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
 
     def clean(self):
         super().clean()
-        if self.test_type == 'quiz':
-            if not (0.0 <= self.score <= 15.0):
-                raise ValidationError('Quiz score must be between 0 and 15.')
-        elif self.test_type == 'assignment':
-            if not (0.0 <= self.score <= 10.0):
-                raise ValidationError('Assignment score must be between 0 and 10.')
-        elif self.test_type == 'midterm':
-            if not (0.0 <= self.score <= 30.0):
-                raise ValidationError('Midterm score must be between 0 and 30.')
-        elif self.test_type == 'final':
-            if not (0.0 <= self.score <= 50.0):
-                raise ValidationError('Final exam score must be between 0 and 50.')
+        if self.test_type == 'quiz' and not (0.0 <= self.score <= 15.0):
+            raise ValidationError('Quiz score must be between 0 and 15.')
+        elif self.test_type == 'assignment' and not (0.0 <= self.score <= 10.0):
+            raise ValidationError('Assignment score must be between 0 and 10.')
+        elif self.test_type == 'midterm' and not (0.0 <= self.score <= 30.0):
+            raise ValidationError('Midterm score must be between 0 and 30.')
+        elif self.test_type == 'final' and not (0.0 <= self.score <= 50.0):
+            raise ValidationError('Final exam score must be between 0 and 50.')
 
     def __str__(self):
         return f'{self.subject} - {self.student} - {self.test_type}: {self.score}'
+
 
 class CourseRecommendation(models.Model):
     course_description=models.TextField()
