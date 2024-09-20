@@ -1,8 +1,8 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
-from phonenumber_field.modelfields import PhoneNumberField
 
 class ParentManager(BaseUserManager):
     use_in_migrations = True
@@ -59,36 +59,51 @@ class Student(models.Model):
     rank = models.PositiveIntegerField()
     average = models.FloatField()
     parent = models.ForeignKey('Parent', on_delete=models.CASCADE) 
-    grade = models.IntegerField(validators=[MinValueValidator(9), MaxValueValidator(12)])
+    grade = models.IntegerField(validators=[MinValueValidator(9), MaxValueValidator(12)]) 
+    total = models.FloatField(blank=True)
+    average = models.FloatField(blank=True) 
 
     def __str__(self):
         return self.full_name
 
 
 class Subject(models.Model):
-    name = models.CharField(max_length=255)    
-
-    quiz = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(15.0)])
-    test1 = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
-    mid_exam = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
-    assignment = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
-    final_exam = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
-
-    semester = models.IntegerField()
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='subjects', null=True)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    score = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(100.0)], blank=True, null=True)
-
-    def calculate_final_score(self):
-        return (self.quiz * 0.1) + (self.test1 * 0.2) + (self.mid_exam * 0.3) + (self.assignment * 0.1) + (self.final_exam * 0.3)
-
-    def save(self, *args, **kwargs):
-        self.score = self.calculate_final_score()
-        super(Subject, self).save(*args, **kwargs)
+    name = models.CharField(max_length=255)  
+    total = models.FloatField(blank=True) 
 
     def __str__(self):
-        return f'{self.name} - {self.student}'
+        return self.name
 
+class Result(models.Model):
+    TEST_CHOICES = [
+        ('quiz', 'Quiz'),
+        ('assignment', 'Assignment'),
+        ('midterm', 'Midterm'),
+        ('final', 'Final Exam'),
+    ]
+    
+    test_type = models.CharField(max_length=10, choices=TEST_CHOICES)
+    score = models.FloatField()
+    student = models.ForeignKey('Student', on_delete=models.CASCADE)
+    subject = models.ForeignKey('Subject', on_delete=models.CASCADE)
+
+    def clean(self):
+        super().clean()
+        if self.test_type == 'quiz':
+            if not (0.0 <= self.score <= 15.0):
+                raise ValidationError('Quiz score must be between 0 and 15.')
+        elif self.test_type == 'assignment':
+            if not (0.0 <= self.score <= 10.0):
+                raise ValidationError('Assignment score must be between 0 and 10.')
+        elif self.test_type == 'midterm':
+            if not (0.0 <= self.score <= 30.0):
+                raise ValidationError('Midterm score must be between 0 and 30.')
+        elif self.test_type == 'final':
+            if not (0.0 <= self.score <= 50.0):
+                raise ValidationError('Final exam score must be between 0 and 50.')
+
+    def __str__(self):
+        return f'{self.subject} - {self.student} - {self.test_type}: {self.score}'
 
 class CourseRecommendation(models.Model):
     course_description=models.TextField()
