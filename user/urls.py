@@ -26,5 +26,5 @@ router.register(r'notifications', NotificationViewSet)
 router.register(r'events', EventViewSet)
 
 urlpatterns = [
-    path('users/', include(router.urls)),
+    path('', include(router.urls)),
 ]

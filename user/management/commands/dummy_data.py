@@ -41,7 +41,7 @@ class Command(BaseCommand):
                 for subject in subject_objects:
                     for test_type in ['quiz', 'assignment', 'midterm', 'final']:
                         max_score = {'quiz': 15, 'assignment': 10, 'midterm': 30, 'final': 50}
-                        score = randint(0, max_score[test_type])
+                        score = randint(10, max_score[test_type])
                         Result.objects.create(
                             test_type=test_type,
                             score=score,

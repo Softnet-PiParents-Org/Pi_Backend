@@ -2,38 +2,47 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.db.models import Sum
 from .models import *
-
+import heapq
+from collections import defaultdict
 
 @receiver(post_save, sender=Result)
 @receiver(post_delete, sender=Result)
 def update_student_on_result_change(sender, instance, **kwargs):
     """
     Signal to update the student's total and average whenever a result is created, updated, or deleted.
+    Takes into account the grade of the student for calculations.
     """
     student = instance.student
-    
-    student_total = Result.objects.filter(student=student).aggregate(Sum('score'))['score__sum'] or 0.0
-    student.total = student_total
-    
-    result_count = Result.objects.filter(student=student).count()
-    student.average = student_total / result_count if result_count > 0 else 0.0
-    
-    student.rank = calculate_student_rank(student)  
-    
+    score = instance.score
+
+    student.total += score
+    student.save()
+
+    total = Subject.objects.count()
+    student.average = ((student.total / (total * 100)) * 100) if total > 0 else 0.0
+
+    calculate_student_rank()
+
+    # Save the student instance
     student.save()
 
 
-def calculate_student_rank(student):
+def calculate_student_rank():
     """
-    Custom logic for calculating a student's rank based on their total score.
-    This is a placeholder function and should be customized as per your needs.
+    Custom logic for calculating a student's rank based on their total score and grade.
+    This function considers students in the same grade for ranking.
     """
-    all_students = Student.objects.order_by('-total')
-    for rank, s in enumerate(all_students, start=1):
-        if s == student:
-            return rank
-    return student.rank 
-
+    table = defaultdict(list)
+    all_students = Student.objects.all()
+    for student in all_students:
+        heapq.heappush(table[student.grade], [student.total, student])
+    for grade in table:
+        rank = 1
+        while table[grade]:
+            total, student = heapq.heappop(table[grade])
+            student.rank = rank
+            student.save()
+            rank += 1
 
 @receiver(post_save, sender=Result)
 def create_result_notification(sender, instance, created, **kwargs):
