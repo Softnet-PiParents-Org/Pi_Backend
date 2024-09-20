@@ -1,28 +1,29 @@
-from django.core.management.base import BaseCommand
-from django.utils import timezone
 import random
-from user.models import Parent, Fee
+from datetime import datetime, timedelta
+from django.core.management.base import BaseCommand
+from user.models import Fee, Parent  
 
 class Command(BaseCommand):
-    help = 'Fills multiple fee records for all parents'
+    help = 'Generate random dummy fee data for each parent'
 
     def handle(self, *args, **kwargs):
-        parents = Parent.objects.all()
         fee_types = ['Tuition', 'Lunch', 'Transport', 'Uniform', 'Book', 'Other']
-        
-        for parent in parents:
-            number_of_fees = random.randint(5, 10)  
-            for _ in range(number_of_fees):
-                status = random.choice(['PAID', 'UNPAID'])
-                fee_type = random.choice(fee_types)
-                fee_date = timezone.now() - timezone.timedelta(days=random.randint(0, 60))
-                
-                Fee.objects.create(
-                    status=status,
-                    types=fee_type,
-                    date=fee_date,
-                    parent=parent
-                )
-                self.stdout.write(self.style.SUCCESS(f"Created Fee for Parent {parent.full_name}: Status - {status}, Type - {fee_type}, Date - {fee_date}"))
+        fee_status = ['PAID', 'UNPAID']
 
-        self.stdout.write(self.style.SUCCESS("All fee records have been created for parents."))
+        parents = Parent.objects.all()
+
+        for parent in parents:
+            num_fees = random.randint(6, 15)  
+            for _ in range(num_fees):
+                fee = Fee(
+                    parent=parent,
+                    types=random.choice(fee_types),
+                    status=random.choice(fee_status),
+                    small_desc=f"Fee for {random.choice(fee_types)}",
+                    date=datetime.now() - timedelta(days=random.randint(0, 365))  
+                )
+                fee.save()
+
+            self.stdout.write(self.style.SUCCESS(f"Generated {num_fees} fees for parent {parent.id}"))
+
+        self.stdout.write(self.style.SUCCESS("Dummy fee data generation completed."))
