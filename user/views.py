@@ -38,7 +38,7 @@ class PermissionRequestFilter(filters.FilterSet):
 class ChatMessageFilter(filters.FilterSet):
     class Meta:
         model = ChatMessage
-        fields = ['sender_type', 'sender_parent', 'recipient_teacher']
+        fields = ['sender_parent', 'recipient_teacher', 'sender_teacher', 'recipient_parent']
 
 class EventFilter(filters.FilterSet):
     class Meta:
