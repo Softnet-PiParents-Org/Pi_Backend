@@ -103,9 +103,12 @@ class Result(models.Model):
 
 
 class CourseRecommendation(models.Model):
+    poster = models.ImageField(upload_to='user/course_recommendation')
     course_description=models.TextField()
-    release_date=models.DateTimeField(auto_now=True)
-    duration=models.PositiveIntegerField()
+    link = models.URLField()
+
+    def __str__(self):
+        return self.course_description[:20]
     
     
 class Attendance(models.Model):
@@ -148,7 +151,3 @@ class Fee(models.Model):
 class Notification(models.Model):
     message = models.TextField()
     date = models.DateField()
-    #parent as recipent
-
-
-#chat,reaction in attendance,
