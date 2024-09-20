@@ -61,10 +61,6 @@ class StudentViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = StudentFilter
 
-    def get_queryset(self):
-        parent = self.request.user.parent
-        return self.queryset.filter(parent=parent)
-
 class ResultViewSet(viewsets.ModelViewSet):
     queryset = Result.objects.all()
     serializer_class = ResultSerializer
