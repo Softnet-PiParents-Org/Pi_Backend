@@ -132,6 +132,7 @@ class PermissionRequest(models.Model):
 
 class Teacher(models.Model):
     full_name = models.CharField(max_length=255)
+    profile_pic = models.ImageField(upload_to='user/teacher', blank=True)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
 
     def __str__(self):

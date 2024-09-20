@@ -39,7 +39,7 @@ class TeacherSerializer(serializers.ModelSerializer):
     subject = SubjectSerializer()
     class Meta:
         model = Teacher
-        fields = ['id', 'full_name', 'subject']
+        fields = '__all__'
 
 class ChatMessageSerializer(serializers.ModelSerializer):
     class Meta:
