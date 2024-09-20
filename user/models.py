@@ -183,7 +183,16 @@ class Fee(models.Model):
         {STATUS_PAID,'Paid'},
         {STATUS_UNPAID,'Unpaid'}
     ]
+    type = [
+        ('Tuition','Tuition'),
+        ('Lunch','Lunch'),
+        ('Transport','Transport'),
+        ('Uniform','Uniform'),
+        ('Book','Book'),
+        ('Other','Other')
+    ]
     status = models.CharField(max_length=7,choices=STATUS_CHOICE)
+    types = models.CharField(max_length=255, choices=type, null=True)
     date = models.DateField()
     
 

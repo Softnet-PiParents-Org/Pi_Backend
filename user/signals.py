@@ -75,17 +75,12 @@ def create_permission_request_notification(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=ChatMessage)
 def create_chat_message_notification(sender, instance, created, **kwargs):
-    if created:
-        if instance.sender_type == 'parent':
-            Notification.objects.create(
-                message=f"New message from parent {instance.sender_parent.full_name} to teacher {instance.recipient_teacher.full_name}.",
-                parent=instance.recipient_teacher.parent
-            )
-        else:
-            Notification.objects.create(
-                message=f"New message from teacher {instance.sender_teacher.full_name} to parent {instance.recipient_parent.full_name}.",
-                parent=instance.recipient_parent
-            )
+    if created and instance.sender_type == 'teacher':
+        Notification.objects.create(
+            message=f"New message from teacher {instance.sender_teacher.full_name} to parent {instance.recipient_parent.full_name}.",
+            parent=instance.recipient_parent
+        )
+
 
 
 @receiver(post_save, sender=Event)
@@ -96,11 +91,3 @@ def create_event_notification(sender, instance, created, **kwargs):
                 message=f"New event created: {instance.description[:20]}...",
                 parent=parent
             )
-
-@receiver(post_save, sender=Fee)
-def create_fee_notification(sender, instance, created, **kwargs):
-    if created:
-        Notification.objects.create(
-            message=f"Fee status updated to {instance.get_status_display()} on {instance.date}.",
-            parent=instance.student.parent 
-        )
