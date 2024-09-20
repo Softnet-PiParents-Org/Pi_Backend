@@ -36,6 +36,7 @@ class PermissionRequestSerializer(serializers.ModelSerializer):
         fields = ['id', 'date', 'student']
 
 class TeacherSerializer(serializers.ModelSerializer):
+    subject = SubjectSerializer()
     class Meta:
         model = Teacher
         fields = ['id', 'full_name', 'subject']
