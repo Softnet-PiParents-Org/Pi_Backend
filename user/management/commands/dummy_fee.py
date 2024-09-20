@@ -20,7 +20,8 @@ class Command(BaseCommand):
                 Fee.objects.create(
                     status=status,
                     types=fee_type,
-                    date=fee_date
+                    date=fee_date,
+                    parent=parent
                 )
                 self.stdout.write(self.style.SUCCESS(f"Created Fee for Parent {parent.full_name}: Status - {status}, Type - {fee_type}, Date - {fee_date}"))
 

@@ -45,6 +45,11 @@ class EventFilter(filters.FilterSet):
         model = Event
         fields = ['description']
 
+class FeeFilter(filters.FilterSet):
+    class Meta:
+        model = Fee
+        fields = ['parent']
+
 # ViewSets
 class ParentViewSet(viewsets.ModelViewSet):
     queryset = Parent.objects.all()
@@ -98,6 +103,8 @@ class FeeViewSet(viewsets.ModelViewSet):
     queryset = Fee.objects.all()
     serializer_class = FeeSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = FeeFilter
 
 class NotificationViewSet(viewsets.ModelViewSet):
     queryset = Notification.objects.all()

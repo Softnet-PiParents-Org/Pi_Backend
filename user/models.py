@@ -193,6 +193,7 @@ class Fee(models.Model):
     ]
     status = models.CharField(max_length=7,choices=STATUS_CHOICE)
     types = models.CharField(max_length=255, choices=type, null=True)
+    parent = models.ForeignKey(Parent, on_delete=models.CASCADE, null=True)
     date = models.DateField()
     
 

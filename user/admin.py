@@ -79,7 +79,7 @@ class TeacherAdmin(admin.ModelAdmin):
 class ChatMessageAdmin(admin.ModelAdmin):
     list_display = ('get_sender', 'get_recipient', 'message', 'timestamp')
     search_fields = ('message',)
-    ordering = ('timestamp',)
+    ordering = ('-timestamp',)
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):

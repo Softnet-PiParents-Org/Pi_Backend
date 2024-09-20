@@ -54,7 +54,7 @@ class EventSerializer(serializers.ModelSerializer):
 class FeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Fee
-        fields = ['id', 'status', 'date']
+        fields = '__all__'
 
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
