@@ -40,6 +40,11 @@ class FeeFilter(filters.FilterSet):
         fields = ['parent']
 
 
+class NotificationFilter(filters.FilterSet):
+    class Meta:
+        model = Notification
+        fields = ['parent']
+
 class CourseFilter(filters.FilterSet):
     class Meta:
         model = CourseRecommendation
@@ -105,6 +110,8 @@ class NotificationViewSet(viewsets.ModelViewSet):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = NotificationFilter
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
