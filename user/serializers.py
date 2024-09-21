@@ -33,7 +33,7 @@ class AbsentSerializer(serializers.ModelSerializer):
 class PermissionRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = PermissionRequest
-        fields = ['id', 'date', 'student']
+        fields = '__all__'
 
 class TeacherSerializer(serializers.ModelSerializer):
     subject = SubjectSerializer()

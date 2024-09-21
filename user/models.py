@@ -124,6 +124,7 @@ class Absent(models.Model):
 
 class PermissionRequest(models.Model):
     date = models.DateField()
+    reason = models.TextField(null=True)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
 
     def __str__(self):
