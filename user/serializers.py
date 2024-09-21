@@ -56,6 +56,12 @@ class FeeSerializer(serializers.ModelSerializer):
         model = Fee
         fields = '__all__'
 
+
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseRecommendation
+        fields = '__all__'
+
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification

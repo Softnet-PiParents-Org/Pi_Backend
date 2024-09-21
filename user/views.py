@@ -1,18 +1,7 @@
 from rest_framework import viewsets, permissions
 from django_filters import rest_framework as filters
-from .models import Parent, Student, Result, Absent, PermissionRequest, Teacher, ChatMessage, Fee, Notification, Event
-from .serializers import (
-    ParentSerializer,
-    StudentSerializer,
-    ResultSerializer,
-    AbsentSerializer,
-    PermissionRequestSerializer,
-    TeacherSerializer,
-    ChatMessageSerializer,
-    FeeSerializer,
-    NotificationSerializer,
-    EventSerializer,
-)
+from .models import *
+from .serializers import *
 
 # Filters
 class StudentFilter(filters.FilterSet):
@@ -49,6 +38,12 @@ class FeeFilter(filters.FilterSet):
     class Meta:
         model = Fee
         fields = ['parent']
+
+
+class CourseFilter(filters.FilterSet):
+    class Meta:
+        model = CourseRecommendation
+        fields = ['subject']
 
 # ViewSets
 class ParentViewSet(viewsets.ModelViewSet):
@@ -117,3 +112,10 @@ class EventViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = EventFilter
+
+class CourseViewSet(viewsets.ModelViewSet):
+    queryset = CourseRecommendation.objects.all()
+    serializer_class = CourseSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = CourseFilter

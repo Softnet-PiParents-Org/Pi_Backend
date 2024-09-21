@@ -105,7 +105,7 @@ class Result(models.Model):
 
 
 class CourseRecommendation(models.Model):
-    poster = models.ImageField(upload_to='user/course_recommendation')
+    poster = models.URLField()
     course_description=models.TextField()
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     link = models.URLField()

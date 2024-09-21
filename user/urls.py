@@ -1,17 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import (
-    ParentViewSet,
-    StudentViewSet,
-    ResultViewSet,
-    AbsentViewSet,
-    PermissionRequestViewSet,
-    TeacherViewSet,
-    ChatMessageViewSet,
-    FeeViewSet,
-    NotificationViewSet,
-    EventViewSet,
-)
+from .views import *
 
 router = DefaultRouter()
 router.register(r'parents', ParentViewSet)
@@ -24,6 +13,7 @@ router.register(r'chat-messages', ChatMessageViewSet)
 router.register(r'fees', FeeViewSet)
 router.register(r'notifications', NotificationViewSet)
 router.register(r'events', EventViewSet)
+router.register(r'courses', CourseViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
