@@ -49,7 +49,7 @@ class ChatMessageSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ['id', 'picture', 'description']
+        fields = '__all__'
 
 class FeeSerializer(serializers.ModelSerializer):
     class Meta:

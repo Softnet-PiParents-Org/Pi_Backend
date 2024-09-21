@@ -172,8 +172,10 @@ class ChatMessage(models.Model):
 
 
 class Event(models.Model):
+    title = models.CharField(max_length=255, null=True)
     picture = models.ImageField(upload_to='users/images', null= True)
     description = models.TextField()
+    date = models.DateField(null=True)
 
 
 class Fee(models.Model):
